@@ -35,6 +35,7 @@ router.post('/fizzbuzz', function(req, res) {
     var fizzBuzzer = new twilio.TwimlResponse();
     var result = fizzbuzzcalculator(number);
     fizzBuzzer.say("Fizzbuzz has been calculated.").pause({ length: 2 }).say(result);
+    fizzBuzzer.say("Thank you for using fizzbuzzer");
     res.writeHead(200, {'Content-Type': 'text/xml'});
     res.end(fizzBuzzer.toString());
   } else {

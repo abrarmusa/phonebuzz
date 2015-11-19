@@ -1,23 +1,23 @@
 // Fizzbuzz calculator
 var fizzbuzz = function(n) {
   
-  var str = " ";
+  var str = "";
   for (i = 1; i <=n; i++){
     if (i % 3 == 0 && i % 5 == 0) {
-        str += "Fizzbuzz ";
+        str += "Fizzbuzz, ";
     }
     else if (i % 3 == 0) {
-        str += "Fizz ";
+        str += "Fizz, ";
     }
     else if (i % 5 == 0) {
-        str += "Buzz ";
+        str += "Buzz, ";
     }
     else {
-        str += i + ' ';
+        str += i + ', ';
     }
   }
 
-
+  str+=".";
   return str;
 };
 
