@@ -1,3 +1,4 @@
+// Fizzbuzz calculator
 var fizzbuzz = function(n) {
   
   var str = " ";
