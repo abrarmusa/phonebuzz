@@ -1,5 +1,25 @@
-extends layout
+doctype html
+html
+  head
+    title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css', integrity='sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==', crossorigin='anonymous')
+    // Optional theme
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css', integrity='sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX', crossorigin='anonymous')
+    // Latest compiled and minified JavaScript
+    script(src='//code.jquery.com/jquery-1.11.3.min.js')
+    script(type="text/javascript", src="/javascripts/formChecker.js")
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js', integrity='sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==', crossorigin='anonymous')
 
-block content
-  h1= title
-  p Welcome to #{title}
+  body
+    .container
+      h1 Phonebuzz
+      br
+      br
+      br
+      br
+      form#phoneForm(role='form')
+        .form-group
+          label(for='phonenum') Please enter a phone number
+          input#pnum.form-control(type='phonenum')
+        button.btn.btn-default(type='submit') Submit

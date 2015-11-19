@@ -5,9 +5,9 @@ var twilio = require('twilio');
 var fizzbuzzcalculator = require('../public/javascripts/fizzbuzz.js');
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+router.get('/', function(req, res){
+    res.render('index', {title: 'PhoneBuzz'});
+})
 
 // Endpoint for Twilio call
 router.post('/phonebuzzer', function(req, res) {
@@ -53,6 +53,28 @@ router.post('/fizzbuzz', function(req, res) {
     res.writeHead(200, {'Content-Type': 'text/xml'});
     res.end(fizzBuzzer.toString());
   }
+});
+
+router.post('/caller', function(req, res) {
+    console.log(req.headers.host);
+    var url = 'http://' + req.headers.host + '/phonebuzzer';
+    var twilioclient = twilio(config.accountSid, config.authToken);
+    var timeout = req.body.timedata;
+    twilioclient.makeCall({
+      to: req.body.phoneNum,
+      from: config.twilioNumber,
+      url: url
+    }, function(err, message) {
+      console.log(err);
+      if (err) {
+        res.status(500).send(err);
+      } else {
+        res.send({
+            message: "Calling now"
+        });
+      }
+    });      
+
 });
 
 module.exports = router;
