@@ -56,24 +56,32 @@ router.post('/fizzbuzz', function(req, res) {
 });
 
 router.post('/caller', function(req, res) {
-    console.log(req.headers.host);
     var url = 'http://' + req.headers.host + '/phonebuzzer';
     var twilioclient = twilio(config.accountSid, config.authToken);
     var timeout = req.body.timedata;
-    twilioclient.makeCall({
-      to: req.body.phoneNum,
-      from: config.twilioNumber,
-      url: url
-    }, function(err, message) {
-      console.log(err);
-      if (err) {
-        res.status(500).send(err);
-      } else {
-        res.send({
-            message: "Calling now"
-        });
-      }
-    });      
+    timeout = timeout / 1000;
+    if ( timeout != 0 ) {
+      res.send({
+        message: "Calling in "+ timeout + " seconds"
+      })
+    }
+    setTimeout( // Simple setTimeout function to handle delay
+      function(){
+        twilioclient.makeCall({
+          to: req.body.phoneNum,
+          from: config.twilioNumber,
+          url: url
+      }, function(err, message) {
+          console.log(err);
+          if (err) {
+            res.status(500).send(err);
+          } else {
+            res.send({
+                message: "Calling now"
+            });
+          }
+      });      
+      }, timeout);
 
 });
 
