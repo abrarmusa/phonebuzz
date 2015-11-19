@@ -28,7 +28,8 @@ module.exports = {
 ======================================
 ## Phase 3
 
-###
+### In order to test out the app, please visit http://phonebuzzer.herokuapp.com/ and enter a phone number and time click submit.
+### Time should be entered like so "1 minute" or "2 minutes 4 seconds" or "1 hour" etc.
 
 
 
