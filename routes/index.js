@@ -12,6 +12,7 @@ router.get('/', function(req, res, next) {
 // Endpoint for Twilio call
 router.post('/phonebuzzer', function(req, res) {
   var url = 'http://' + req.headers.host + '/fizzbuzz';
+  // Validate twilio request
   if (twilio.validateExpressRequest(req, config.authToken)) {
     var resp = new twilio.TwimlResponse();
     resp.say('Welcome to Phonebuzz').gather({
@@ -33,12 +34,14 @@ router.post('/fizzbuzz', function(req, res) {
   if ( req.body.Digits ){
     var number = parseInt(req.body.Digits);
     var fizzBuzzer = new twilio.TwimlResponse();
+    // If the number is > 0, provide twiml output
     if (number > 0){
       var result = fizzbuzzcalculator(number);
       fizzBuzzer.say("Fizzbuzz has been calculated.").pause({ length: 2 }).say(result);
       fizzBuzzer.say("Thank you for using fizzbuzzer");
       res.writeHead(200, {'Content-Type': 'text/xml'});
       res.end(fizzBuzzer.toString());
+    // else say error
     } else {
       fizzBuzzer.say("You have entered 0. Please enter a number greater than 0");
       res.writeHead(200, {'Content-Type': 'text/xml'});
