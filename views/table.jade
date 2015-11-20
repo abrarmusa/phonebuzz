@@ -1,0 +1,20 @@
+div
+  table.table
+    thead
+      tr 
+        th Phone Number
+        th Call Time
+        th Fizzbuzz Digits
+        th Delay
+        th 
+    tbody
+      each call in calllist
+        tr
+          td#pnum2=call.phonenumber
+          td=new Date(call.calltime)
+          td=call.digits
+          td#delay2=(call.delay/1000) + " seconds"
+          td
+            button#makecall.btn.btn-default.btn-xs(type='button')
+              span.glyphicon.glyphicon-earphone(aria-hidden='true')
+              |  Make Call

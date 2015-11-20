@@ -3,85 +3,158 @@ var config = require('../config.js');
 var router = express();
 var twilio = require('twilio');
 var fizzbuzzcalculator = require('../public/javascripts/fizzbuzz.js');
+var mongoose = require('mongoose');
+var Calls = require('../models/calls.js');
+var options = {
+        upsert: true,
+        sort: {'calltime': -1 } 
+    }
+    /* GET home page. */
+router.get('/', function(req, res) {
+    var calllist;
+    Calls.find({}, 'phonenumber digits delay calltime', function(err, calls) {
+        if (err) throw err;
+        // calllist = JSON.parse(calls);
+    }).sort({
+        calltime: -1
+    }).exec(function(err, calls) {
+        calllist = calls.map(function(call) {
+            return call.toJSON();
+        });
+    }).then(function() {
+        res.render('index', {
+            calllist: calllist
+        });
+    })
 
-/* GET home page. */
-router.get('/', function(req, res){
-    res.render('index', {title: 'PhoneBuzz'});
 })
 
 // Endpoint for Twilio call
 router.post('/phonebuzzer', function(req, res) {
-  var url = 'http://' + req.headers.host + '/fizzbuzz';
-  // Validate twilio request
-  if (twilio.validateExpressRequest(req, config.authToken)) {
-    var resp = new twilio.TwimlResponse();
-    resp.say('Welcome to Phonebuzz').gather({
-      action: url,
-      finishOnKey: '#'
-    }, function() {
-      this.say('Please enter a number greater than 0 to run fizzbuz. Press pound after you have finished entering the number.')
-    });
-    res.type('text/xml');
-    res.send(resp.toString());
-  } else {
-    res.status(403).send('This is not a twilio request! Only requests from twilio are accepted');
-  }
+    var url = 'http://' + req.headers.host + '/fizzbuzz';
+    // Validate twilio request
+    if (twilio.validateExpressRequest(req, config.authToken)) {
+        var resp = new twilio.TwimlResponse();
+        resp.say('Welcome to Phonebuzz').gather({
+            action: url,
+            finishOnKey: '#'
+        }, function() {
+            this.say('Please enter a number greater than 0 to run fizzbuzz. Press pound after you have finished entering the number.')
+        });
+        res.type('text/xml');
+        res.send(resp.toString());
+    } else {
+        res.status(403).send('This is not a twilio request! Only requests from twilio are accepted');
+    }
 });
 
 // Endpoint for fizzbuzz output through Twilio
 router.post('/fizzbuzz', function(req, res) {
-  var digits = req.body.Digits;
-  if ( req.body.Digits ){
-    var number = parseInt(req.body.Digits);
-    var fizzBuzzer = new twilio.TwimlResponse();
-    // If the number is > 0, provide twiml output
-    if (number > 0){
-      var result = fizzbuzzcalculator(number);
-      fizzBuzzer.say("Fizzbuzz has been calculated.").pause({ length: 2 }).say(result);
-      fizzBuzzer.say("Thank you for using fizzbuzzer");
-      res.writeHead(200, {'Content-Type': 'text/xml'});
-      res.end(fizzBuzzer.toString());
-    // else say error
+    var digits;
+    var callLogger;
+    if (req.body.Digits) {
+        callLogger = Calls.findOneAndUpdate({
+            phonenumber: req.body.Called
+        }, {
+            digits: req.body.Digits
+        }).exec(function(err, call) {
+            console.log(call.digits);
+            digits = req.body.Digits;
+            console.log('digit set to ' + digits);
+        });
     } else {
-      fizzBuzzer.say("You have entered 0. Please enter a number greater than 0");
-      res.writeHead(200, {'Content-Type': 'text/xml'});
-      res.end(fizzBuzzer.toString());
-    }
-
-  } else {
-    fizzBuzzer.say("You have made an invalid entry");
-    res.writeHead(200, {'Content-Type': 'text/xml'});
-    res.end(fizzBuzzer.toString());
-  }
+        callLogger = Calls.findOne({
+            phonenumber: req.body.Called
+        }).sort('-calltime').exec(function(err, call) {
+            console.log(call.digits);
+            digits = call.digits;
+        })
+    };
+    
+    callLogger.then(function() {
+        console.log('digit is ' + digits);
+        if (parseInt(digits) > -1) {
+            console.log('H12');
+            var number = digits;
+            console.log('H13');
+            number = parseInt(number);
+            var fizzBuzzer = new twilio.TwimlResponse();
+            // If the number is > 0, provide twiml output
+            if (number > 0) {
+                var result = fizzbuzzcalculator(number);
+                fizzBuzzer.say("Fizzbuzz has been calculated.").pause({
+                    length: 2
+                }).say(result).say("Thank you for using fizzbuzzer");
+            } else {
+                fizzBuzzer.say("You have entered 0. Please enter a number greater than 0");
+            }
+        } else {
+            fizzBuzzer.say("You have made an invalid entry");
+        }
+        res.writeHead(200, {
+            'Content-Type': 'text/xml'
+        });
+        res.end(fizzBuzzer.toString());
+    });
 });
 
+
+// Caller route opened when user used interface on website
 router.post('/caller', function(req, res) {
     var url = 'http://' + req.headers.host + '/phonebuzzer';
     var twilioclient = twilio(config.accountSid, config.authToken);
-    var timeout = req.body.timedata;
-    timeout = timeout / 1000;
-    if ( timeout != 0 ) {
-      res.send({
-        message: "Calling in "+ timeout + " seconds"
-      })
-    }
-    setTimeout( // Simple setTimeout function to handle delay
-      function(){
-        twilioclient.makeCall({
-          to: req.body.phoneNum,
-          from: config.twilioNumber,
-          url: url
-      }, function(err, message) {
-          console.log(err);
-          if (err) {
-            res.status(500).send(err);
-          } else {
+    var delay = req.body.delay;
+    console.log('Delay is ' + delay);
+    var digits = 0;
+    var phonenum = req.body.phoneNum;
+    // Get most recent call by number and highest calltime
+    var callLogger = Calls.findOne({
+        phonenumber: phonenum
+    }).sort('-calltime').exec(function(err, call) {
+        if (call != null) {
+            digits = call.digits;
+            delay = call.delay;
+            console.log('Digits set to ' + digits);
+        }
+    });
+
+    callLogger.then(function() {
+        console.log(digits);
+        if (parseInt(digits) > 0) {
+            url = 'http://' + req.headers.host + '/fizzbuzz';
+        }
+        if (delay != 0) {
+            res.send({
+                message: "Calling in " + delay + " seconds"
+            })
+        } else {
             res.send({
                 message: "Calling now"
             });
-          }
-      });      
-      }, timeout);
+        }
+        setTimeout(function() {
+            var milliseconds = (new Date).getTime();
+            twilioclient.makeCall({
+                to: phonenum,
+                from: config.twilioNumber,
+                url: url
+            }, function(err, responsedata) {
+                var currentcall = new Calls({
+                    phonenumber: phonenum,
+                    digits: digits,
+                    delay: delay,
+                    calltime: milliseconds
+                });
+                currentcall.save(function(err) {
+                    if (err) console.log('Error on save!')
+                });
+                if (err) {
+                    res.status(500).send(err);
+                }
+            });
+        }, delay);
+    })
+
 });
 
 module.exports = router;

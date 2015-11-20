@@ -13,15 +13,21 @@ html
 
   body
     .container
-      h1 Phonebuzz
+      h1.centeralign Phonebuzz
       br
       br
       br
       br
       form#phoneForm(role='form')
         .form-group
-          label(for='phonenum') Please enter a phone number
+          label.centeralign(for='phonenum') Please enter a phone number
           input#pnum.form-control(type='phonenum')
+          br
           label(for='time') Please enter how long we should wait before calling you. (E.g "1 minute")
           input#timeval.form-control(type='text')
         button.btn.btn-default(type='submit') Submit
+      br
+      br
+      block content
+       include table
+

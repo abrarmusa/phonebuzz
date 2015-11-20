@@ -1,5 +1,4 @@
 $(function() {
-
     // Prevent form submission and submit using ajax
     $('#phoneForm').on('submit', function(e) {
         // Stop event bubbling
@@ -16,7 +15,7 @@ $(function() {
             dataType: 'json',
             data: {
                 phoneNum: $('#pnum').val(),
-                timedata: timeinmil
+                delay: timeinmil
             }
         }).done(function(data) {
             // Success alert
@@ -25,6 +24,42 @@ $(function() {
             alert(JSON.stringify(error));
         });
     });
+
+    $('#makecall').on('click', function(e) {
+        // Stop event bubbling
+        e.preventDefault();
+        var delay = (parseInt($(this).parent().parent().find("#delay2").text())/1000).toString();
+        delay += " seconds";
+        var timeinmil = timeParser(delay);
+        // Check if it is an integer value, else set to 0
+        if ( timeinmil !== parseInt(timeinmil, 10) ) {
+            timeinmil = 0;
+        }
+        console.log(timeinmil);
+        $.ajax({
+            url: '/caller',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                phoneNum: $(this).parent().parent().find("#pnum2").text(),
+                delay: timeinmil
+            }
+        }).done(function(data) {
+            // Success alert
+            alert(data.message);
+        }).fail(function(error) {
+            alert(JSON.stringify(error));
+        });
+        $.ajax({
+            url: '/calls',
+            method: 'GET'
+        }).done(function(data) {
+            // Success alert
+            alert(data.message);
+        })
+        
+    });
+
     // Parses the string to get the time in milliseconds
     function timeParser(timestring){
         console.log(timestring);
@@ -53,4 +88,6 @@ $(function() {
             alert("Please enter a correct input for time");
         }
     }
+
+
 });
