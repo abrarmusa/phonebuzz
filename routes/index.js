@@ -58,25 +58,19 @@ router.post('/fizzbuzz', function(req, res) {
         }, {
             digits: req.body.Digits
         }).exec(function(err, call) {
-            console.log(call.digits);
             digits = req.body.Digits;
-            console.log('digit set to ' + digits);
         });
     } else {
         callLogger = Calls.findOne({
             phonenumber: req.body.Called
         }).sort('-calltime').exec(function(err, call) {
-            console.log(call.digits);
             digits = call.digits;
         })
     };
     
     callLogger.then(function() {
-        console.log('digit is ' + digits);
         if (parseInt(digits) > -1) {
-            console.log('H12');
             var number = digits;
-            console.log('H13');
             number = parseInt(number);
             var fizzBuzzer = new twilio.TwimlResponse();
             // If the number is > 0, provide twiml output
@@ -104,7 +98,6 @@ router.post('/caller', function(req, res) {
     var url = 'http://' + req.headers.host + '/phonebuzzer';
     var twilioclient = twilio(config.accountSid, config.authToken);
     var delay = req.body.delay;
-    console.log('Delay is ' + delay);
     var digits = 0;
     var phonenum = req.body.phoneNum;
     // Get most recent call by number and highest calltime
@@ -114,18 +107,16 @@ router.post('/caller', function(req, res) {
         if (call != null) {
             digits = call.digits;
             delay = call.delay;
-            console.log('Digits set to ' + digits);
         }
     });
 
     callLogger.then(function() {
-        console.log(digits);
         if (parseInt(digits) > 0) {
             url = 'http://' + req.headers.host + '/fizzbuzz';
         }
         if (delay != 0) {
             res.send({
-                message: "Calling in " + delay + " seconds"
+                message: "Calling in " + (delay/1000) + " seconds"
             })
         } else {
             res.send({
@@ -146,7 +137,7 @@ router.post('/caller', function(req, res) {
                     calltime: milliseconds
                 });
                 currentcall.save(function(err) {
-                    if (err) console.log('Error on save!')
+                
                 });
                 if (err) {
                     res.status(500).send(err);
