@@ -15,6 +15,8 @@
     "serve-favicon": "~2.3.0"
   },
   "devDependencies": {
+    "mongodb": "^2.0.48",
+    "mongoose": "^4.2.6",
     "twilio": "^2.5.2"
   }
 }
