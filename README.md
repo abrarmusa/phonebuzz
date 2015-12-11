@@ -1,6 +1,13 @@
 # Phonebuzzer
 
 
+### A Twilio based node app that lets users:
+### - Call the phone number, enter a number greater than 0 and then listen to the fizzbuzz result up to that number(*Note: Please keep
+the number reasonably low for eg. 15 unless you want to hear the program speak out the result up to a big number, may be a bit annoying)
+### - Use the web interface to input a number to which the app will make a phone call to run the Phonebuzzer app
+
+
+======================================
 ======================================
 ## Phase 1
 ### In order to test out the app, please call +1 (709) 700-0754 and follow the instructions
